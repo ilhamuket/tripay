@@ -23,8 +23,8 @@ class Tripay
     public const MODE_SANDBOX = 'sandbox';
     public const MODE_PRODUCTION = 'production';
 
-    public const SANDBOX_URL = 'https://tripay.co.id/api-sandbox';
-    public const PRODUCTION_URL = 'https://tripay.co.id/api';
+    public const SANDBOX_URL = 'https://tripay.co.id';
+    public const PRODUCTION_URL = 'https://tripay.co.id';
 
     public function __construct(
         string $apiKey,
@@ -84,7 +84,7 @@ class Tripay
             $params['code'] = $code;
         }
 
-        $response = $this->httpClient->get('/merchant/payment-channel', $params);
+        $response = $this->httpClient->get('/api/merchant/payment-channel', $params);
         
         return new PaymentChannelResponse($response);
     }
@@ -99,7 +99,7 @@ class Tripay
             $params['code'] = $code;
         }
 
-        $response = $this->httpClient->get('/merchant/fee-calculator', $params);
+        $response = $this->httpClient->get('/api/merchant/fee-calculator', $params);
         
         return new FeeCalculatorResponse($response);
     }
@@ -112,7 +112,7 @@ class Tripay
         $allowedParams = ['page', 'per_page', 'sort', 'reference', 'merchant_ref', 'method', 'status'];
         $filteredParams = array_intersect_key($params, array_flip($allowedParams));
 
-        $response = $this->httpClient->get('/merchant/transactions', $filteredParams);
+        $response = $this->httpClient->get('/api/merchant/transactions', $filteredParams);
         
         return new TransactionResponse($response);
     }
@@ -128,7 +128,7 @@ class Tripay
             $payload['amount']
         );
 
-        $response = $this->httpClient->post('/transaction/create', $payload);
+        $response = $this->httpClient->post('/api/transaction/create', $payload);
         
         return new CreateTransactionResponse($response);
     }
@@ -138,7 +138,7 @@ class Tripay
      */
     public function getTransactionDetail(string $reference): TransactionDetailResponse
     {
-        $response = $this->httpClient->get('/transaction/detail', [
+        $response = $this->httpClient->get('/api/transaction/detail', [
             'reference' => $reference,
         ]);
         
@@ -150,7 +150,7 @@ class Tripay
      */
     public function checkTransactionStatus(string $reference): CheckStatusResponse
     {
-        $response = $this->httpClient->get('/transaction/check-status', [
+        $response = $this->httpClient->get('/api/transaction/check-status', [
             'reference' => $reference,
         ]);
         
@@ -179,7 +179,7 @@ class Tripay
             $params['amount'] = $amount;
         }
 
-        $response = $this->httpClient->get('/payment/instruction', $params);
+        $response = $this->httpClient->get('/api/payment/instruction', $params);
         
         return new InstructionResponse($response);
     }
@@ -189,7 +189,7 @@ class Tripay
      */
     public function generateSignature(string $merchantRef, int $amount): string
     {
-        return hash_hmac('sha256', $this->merchantCode . $merchantRef . $amount, $this->privateKey);
+        return hash_hmac('sha256', "{$this->merchantCode}{$merchantRef}{$amount}", $this->privateKey);
     }
 
     /**

@@ -59,7 +59,7 @@ class HttpClient
     /**
      * Low-level HTTP sender
      */
-    protected function send(
+   protected function send(
         string $method,
         string $endpoint,
         array $options,
@@ -75,19 +75,18 @@ class HttpClient
                 'headers'         => [
                     'Authorization' => 'Bearer ' . $this->apiKey,
                     'Accept'        => 'application/json',
-                    'User-Agent'    => 'ilhamuket/tripay-sdk/1.0.1',
+                    'User-Agent'    => 'ilhamuket/tripay-sdk/1.0.3',
                 ],
             ]);
 
             $response = $client->request($method, $endpoint, $options);
+            $status   = $response->getStatusCode();
             $body     = trim($response->getBody()->getContents());
 
-            // 🚨 EMPTY RESPONSE
             if ($body === '') {
                 throw new TripayApiException('Empty response from Tripay API');
             }
 
-            // 🚨 NOT JSON RESPONSE
             if (!str_starts_with($body, '{')) {
                 throw new TripayApiException(
                     'Non-JSON response from Tripay API: ' . substr($body, 0, 200)
@@ -102,21 +101,15 @@ class HttpClient
                 );
             }
 
-            if (!array_key_exists('success', $json)) {
+            // ❌ Tripay DOES NOT use success flag
+            // ✅ HTTP status check is enough
+            if ($status >= 400) {
                 throw new TripayApiException(
-                    'Tripay API response missing success flag',
-                    $response->getStatusCode()
+                    $json['message'] ?? 'Tripay API error',
+                    $status
                 );
             }
 
-            if ($json['success'] !== true) {
-                throw new TripayApiException(
-                    $json['message'] ?? 'Tripay API returned error',
-                    $response->getStatusCode()
-                );
-            }
-
-            // ✅ SUCCESS
             return $json;
 
         } catch (GuzzleException $e) {
@@ -127,6 +120,7 @@ class HttpClient
             );
         }
     }
+
 
 
     /**

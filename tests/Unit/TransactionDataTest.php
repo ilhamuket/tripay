@@ -1,11 +1,11 @@
 <?php
 
-namespace Ufrfrk\Tripay\Tests\Unit;
+namespace ilhamuket\Tripay\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Ufrfrk\Tripay\Data\OrderItem;
-use Ufrfrk\Tripay\Data\TransactionData;
-use Ufrfrk\Tripay\PaymentMethod;
+use ilhamuket\Tripay\Data\OrderItem;
+use ilhamuket\Tripay\Data\TransactionData;
+use ilhamuket\Tripay\PaymentMethod;
 
 class TransactionDataTest extends TestCase
 {

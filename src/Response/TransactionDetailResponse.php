@@ -1,6 +1,6 @@
 <?php
 
-namespace Ufrfrk\Tripay\Response;
+namespace ilhamuket\Tripay\Response;
 
 class TransactionDetailResponse extends BaseResponse
 {

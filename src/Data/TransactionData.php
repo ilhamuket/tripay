@@ -1,6 +1,6 @@
 <?php
 
-namespace Ufrfrk\Tripay\Data;
+namespace ilhamuket\Tripay\Data;
 
 use InvalidArgumentException;
 

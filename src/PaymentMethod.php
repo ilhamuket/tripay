@@ -1,6 +1,6 @@
 <?php
 
-namespace Ufrfrk\Tripay;
+namespace ilhamuket\Tripay;
 
 /**
  * Available Payment Methods

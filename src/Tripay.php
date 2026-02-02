@@ -23,8 +23,8 @@ class Tripay
     public const MODE_SANDBOX = 'sandbox';
     public const MODE_PRODUCTION = 'production';
 
-    public const SANDBOX_URL = 'https://tripay.co.id/api-sandbox';
-    public const PRODUCTION_URL = 'https://tripay.co.id/api';
+    public const SANDBOX_URL = 'https://tripay.co.id/api-sandbox/';
+    public const PRODUCTION_URL = 'https://tripay.co.id/api/';
 
     public function __construct(
         string $apiKey,

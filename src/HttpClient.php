@@ -66,6 +66,15 @@ class HttpClient
         bool $verifySsl
     ): array {
         try {
+
+       $fullUrl = $this->baseUrl . '/' . ltrim($endpoint, '/');
+        echo "\n🔍 DEBUG REQUEST:\n";
+        echo "Base URL: " . $this->baseUrl . "\n";
+        echo "Endpoint: " . $endpoint . "\n";
+        echo "Full URL: " . $fullUrl . "\n";
+        echo "Method: " . $method . "\n\n";
+
+
             $client = new Client([
                 'base_uri'        => $this->baseUrl,
                 'timeout'         => 30,
@@ -79,7 +88,7 @@ class HttpClient
                 ],
             ]);
 
-            $response = $client->request($method, $endpoint, $options);
+            $response = $client->request($method, $fullUrl, $options);
             $status   = $response->getStatusCode();
             $body     = trim($response->getBody()->getContents());
 

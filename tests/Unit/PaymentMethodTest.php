@@ -1,9 +1,9 @@
 <?php
 
-namespace ilhamuket\Tripay\Tests\Unit;
+namespace Ilhamuket\Tripay\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use ilhamuket\Tripay\PaymentMethod;
+use Ilhamuket\Tripay\PaymentMethod;
 
 class PaymentMethodTest extends TestCase
 {

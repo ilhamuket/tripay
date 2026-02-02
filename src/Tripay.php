@@ -1,15 +1,15 @@
 <?php
 
-namespace ilhamuket\Tripay;
+namespace Ilhamuket\Tripay;
 
-use ilhamuket\Tripay\Data\TransactionData;
-use ilhamuket\Tripay\Response\CheckStatusResponse;
-use ilhamuket\Tripay\Response\CreateTransactionResponse;
-use ilhamuket\Tripay\Response\FeeCalculatorResponse;
-use ilhamuket\Tripay\Response\InstructionResponse;
-use ilhamuket\Tripay\Response\PaymentChannelResponse;
-use ilhamuket\Tripay\Response\TransactionDetailResponse;
-use ilhamuket\Tripay\Response\TransactionResponse;
+use Ilhamuket\Tripay\Data\TransactionData;
+use Ilhamuket\Tripay\Response\CheckStatusResponse;
+use Ilhamuket\Tripay\Response\CreateTransactionResponse;
+use Ilhamuket\Tripay\Response\FeeCalculatorResponse;
+use Ilhamuket\Tripay\Response\InstructionResponse;
+use Ilhamuket\Tripay\Response\PaymentChannelResponse;
+use Ilhamuket\Tripay\Response\TransactionDetailResponse;
+use Ilhamuket\Tripay\Response\TransactionResponse;
 
 class Tripay
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace ilhamuket\Tripay\Exceptions;
+namespace Ilhamuket\Tripay\Exceptions;
 
 use Exception;
 

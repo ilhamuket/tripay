@@ -1,6 +1,6 @@
 <?php
 
-namespace ilhamuket\Tripay\Response;
+namespace Ilhamuket\Tripay\Response;
 
 use Illuminate\Support\Collection;
 

@@ -31,12 +31,12 @@
     },
     "autoload": {
         "psr-4": {
-            "IlhamUket\\Tripay\\": "src/"
+            "Ilhamuket\\Tripay\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "IlhamUket\\Tripay\\Tests\\": "tests/"
+            "Ilhamuket\\Tripay\\Tests\\": "tests/"
         }
     },
     "scripts": {
@@ -45,10 +45,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "IlhamUket\\Tripay\\TripayServiceProvider"
+                "Ilhamuket\\Tripay\\TripayServiceProvider"
             ],
             "aliases": {
-                "Tripay": "IlhamUket\\Tripay\\Facades\\Tripay"
+                "Tripay": "Ilhamuket\\Tripay\\Facades\\Tripay"
             }
         }
     },

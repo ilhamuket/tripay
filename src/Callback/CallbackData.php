@@ -1,6 +1,6 @@
 <?php
 
-namespace ilhamuket\Tripay\Callback;
+namespace Ilhamuket\Tripay\Callback;
 
 class CallbackData
 {

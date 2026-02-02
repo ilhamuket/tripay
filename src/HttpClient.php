@@ -1,11 +1,11 @@
 <?php
 
-namespace ilhamuket\Tripay;
+namespace Ilhamuket\Tripay;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use ilhamuket\Tripay\Exceptions\TripayApiException;
-use ilhamuket\Tripay\Exceptions\TripayConnectionException;
+use Ilhamuket\Tripay\Exceptions\TripayApiException;
+use Ilhamuket\Tripay\Exceptions\TripayConnectionException;
 
 class HttpClient
 {

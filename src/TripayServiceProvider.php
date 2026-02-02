@@ -1,6 +1,6 @@
 <?php
 
-namespace ilhamuket\Tripay;
+namespace Ilhamuket\Tripay;
 
 use Illuminate\Support\ServiceProvider;
 

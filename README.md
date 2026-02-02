@@ -1,8 +1,8 @@
 # Tripay SDK for Laravel
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/ilhamuket/tripay.svg?style=flat-square)](https://packagist.org/packages/ilhamuket/tripay)
-[![Total Downloads](https://img.shields.io/packagist/dt/ilhamuket/tripay.svg?style=flat-square)](https://packagist.org/packages/ilhamuket/tripay)
-[![License](https://img.shields.io/packagist/l/ilhamuket/tripay.svg?style=flat-square)](https://packagist.org/packages/ilhamuket/tripay)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/Ilhamuket/tripay.svg?style=flat-square)](https://packagist.org/packages/Ilhamuket/tripay)
+[![Total Downloads](https://img.shields.io/packagist/dt/Ilhamuket/tripay.svg?style=flat-square)](https://packagist.org/packages/Ilhamuket/tripay)
+[![License](https://img.shields.io/packagist/l/Ilhamuket/tripay.svg?style=flat-square)](https://packagist.org/packages/Ilhamuket/tripay)
 
 SDK PHP untuk mengintegrasikan [Tripay Payment Gateway](https://tripay.co.id) dengan Laravel 10, 11, dan 12.
 
@@ -23,7 +23,7 @@ SDK PHP untuk mengintegrasikan [Tripay Payment Gateway](https://tripay.co.id) de
 ## 📦 Installation
 
 ```bash
-composer require ilhamuket/tripay
+composer require Ilhamuket/tripay
 ```
 
 ### Publish Config
@@ -48,10 +48,10 @@ TRIPAY_PRIVATE_KEY=your-private-key
 ### Using Facade
 
 ```php
-use ilhamuket\Tripay\Facades\Tripay;
-use ilhamuket\Tripay\Data\TransactionData;
-use ilhamuket\Tripay\Data\OrderItem;
-use ilhamuket\Tripay\PaymentMethod;
+use Ilhamuket\Tripay\Facades\Tripay;
+use Ilhamuket\Tripay\Data\TransactionData;
+use Ilhamuket\Tripay\Data\OrderItem;
+use Ilhamuket\Tripay\PaymentMethod;
 
 // Get Payment Channels
 $channels = Tripay::getPaymentChannels();
@@ -107,7 +107,7 @@ $instructions = Tripay::getPaymentInstruction('BRIVA');
 ### Using Dependency Injection
 
 ```php
-use ilhamuket\Tripay\Tripay;
+use Ilhamuket\Tripay\Tripay;
 
 class PaymentController extends Controller
 {
@@ -125,7 +125,7 @@ class PaymentController extends Controller
 ### Direct Instantiation (Without Laravel)
 
 ```php
-use ilhamuket\Tripay\Tripay;
+use Ilhamuket\Tripay\Tripay;
 
 $tripay = new Tripay(
     apiKey: 'your-api-key',
@@ -149,7 +149,7 @@ Create a controller to handle Tripay callbacks:
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use ilhamuket\Tripay\Facades\Tripay;
+use Ilhamuket\Tripay\Facades\Tripay;
 
 class TripayCallbackController extends Controller
 {
@@ -210,7 +210,7 @@ protected $except = [
 Use the `PaymentMethod` class for available payment methods:
 
 ```php
-use ilhamuket\Tripay\PaymentMethod;
+use Ilhamuket\Tripay\PaymentMethod;
 
 // Virtual Account
 PaymentMethod::BRIVA      // BRI Virtual Account

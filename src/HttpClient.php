@@ -9,25 +9,13 @@ use Ilhamuket\Tripay\Exceptions\TripayConnectionException;
 
 class HttpClient
 {
-    protected Client $client;
     protected string $baseUrl;
     protected string $apiKey;
 
     public function __construct(string $apiKey, string $baseUrl)
     {
-        $this->apiKey = $apiKey;
+        $this->apiKey  = $apiKey;
         $this->baseUrl = rtrim($baseUrl, '/');
-        
-        $this->client = new Client([
-            'base_uri' => $this->baseUrl,
-            'timeout' => 30,
-            'connect_timeout' => 10,
-            'http_errors' => false,
-            'headers' => [
-                'Authorization' => 'Bearer ' . $this->apiKey,
-                'Accept' => 'application/json',
-            ],
-        ]);
     }
 
     /**
@@ -35,7 +23,9 @@ class HttpClient
      */
     public function get(string $endpoint, array $params = []): array
     {
-        return $this->request('GET', $endpoint, ['query' => $params]);
+        return $this->request('GET', $endpoint, [
+            'query' => $params,
+        ]);
     }
 
     /**
@@ -43,17 +33,55 @@ class HttpClient
      */
     public function post(string $endpoint, array $data = []): array
     {
-        return $this->request('POST', $endpoint, ['form_params' => $data]);
+        return $this->request('POST', $endpoint, [
+            'form_params' => $data,
+        ]);
     }
 
     /**
-     * Send request to Tripay API
+     * Main request handler (with SSL auto fallback)
      */
     protected function request(string $method, string $endpoint, array $options = []): array
     {
         try {
-            $response = $this->client->request($method, $endpoint, $options);
-            $body = $response->getBody()->getContents();
+            // 🔐 First attempt: SSL enabled (secure default)
+            return $this->send($method, $endpoint, $options, true);
+        } catch (TripayConnectionException $e) {
+            // 🔥 Auto fallback ONLY for SSL-related errors
+            if ($this->isSslError($e)) {
+                return $this->send($method, $endpoint, $options, false);
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Low-level HTTP sender
+     */
+    protected function send(
+        string $method,
+        string $endpoint,
+        array $options,
+        bool $verifySsl
+    ): array {
+        try {
+            $client = new Client([
+                'base_uri'        => $this->baseUrl,
+                'timeout'         => 30,
+                'connect_timeout' => 10,
+                'http_errors'     => false,
+                'verify'          => $verifySsl,
+                'headers'         => [
+                    'Authorization' => 'Bearer ' . $this->apiKey,
+                    'Accept'        => 'application/json',
+                    'User-Agent'    => 'ilhamuket/tripay-sdk/1.0.0',
+                ],
+            ]);
+
+            $response = $client->request($method, $endpoint, $options);
+            $body     = $response->getBody()->getContents();
+
             $data = json_decode($body, true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
@@ -64,14 +92,15 @@ class HttpClient
                 throw new TripayApiException('Unexpected response format from Tripay API');
             }
 
-            if (!$data['success']) {
+            if ($data['success'] !== true) {
                 throw new TripayApiException(
-                    $data['message'] ?? 'Unknown error from Tripay API',
+                    $data['message'] ?? 'Tripay API error',
                     $response->getStatusCode()
                 );
             }
 
             return $data;
+
         } catch (GuzzleException $e) {
             throw new TripayConnectionException(
                 'Failed to connect to Tripay API: ' . $e->getMessage(),
@@ -79,5 +108,19 @@ class HttpClient
                 $e
             );
         }
+    }
+
+    /**
+     * Detect SSL / certificate related errors
+     */
+    protected function isSslError(TripayConnectionException $e): bool
+    {
+        $message = strtolower($e->getMessage());
+
+        return str_contains($message, 'ssl')
+            || str_contains($message, 'certificate')
+            || str_contains($message, 'cainfo')
+            || str_contains($message, 'curl error 77')
+            || str_contains($message, 'curl error 60');
     }
 }

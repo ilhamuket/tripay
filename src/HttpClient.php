@@ -75,31 +75,49 @@ class HttpClient
                 'headers'         => [
                     'Authorization' => 'Bearer ' . $this->apiKey,
                     'Accept'        => 'application/json',
-                    'User-Agent'    => 'ilhamuket/tripay-sdk/1.0.0',
+                    'User-Agent'    => 'ilhamuket/tripay-sdk/1.0.1',
                 ],
             ]);
 
             $response = $client->request($method, $endpoint, $options);
-            $body     = $response->getBody()->getContents();
+            $body     = trim($response->getBody()->getContents());
 
-            $data = json_decode($body, true);
+            // 🚨 EMPTY RESPONSE
+            if ($body === '') {
+                throw new TripayApiException('Empty response from Tripay API');
+            }
+
+            // 🚨 NOT JSON RESPONSE
+            if (!str_starts_with($body, '{')) {
+                throw new TripayApiException(
+                    'Non-JSON response from Tripay API: ' . substr($body, 0, 200)
+                );
+            }
+
+            $json = json_decode($body, true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new TripayApiException('Invalid JSON response from Tripay API');
-            }
-
-            if (!isset($data['success'])) {
-                throw new TripayApiException('Unexpected response format from Tripay API');
-            }
-
-            if ($data['success'] !== true) {
                 throw new TripayApiException(
-                    $data['message'] ?? 'Tripay API error',
+                    'Invalid JSON response from Tripay API: ' . json_last_error_msg()
+                );
+            }
+
+            if (!array_key_exists('success', $json)) {
+                throw new TripayApiException(
+                    'Tripay API response missing success flag',
                     $response->getStatusCode()
                 );
             }
 
-            return $data;
+            if ($json['success'] !== true) {
+                throw new TripayApiException(
+                    $json['message'] ?? 'Tripay API returned error',
+                    $response->getStatusCode()
+                );
+            }
+
+            // ✅ SUCCESS
+            return $json;
 
         } catch (GuzzleException $e) {
             throw new TripayConnectionException(
@@ -109,6 +127,7 @@ class HttpClient
             );
         }
     }
+
 
     /**
      * Detect SSL / certificate related errors

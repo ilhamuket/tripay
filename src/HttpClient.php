@@ -68,11 +68,7 @@ class HttpClient
         try {
 
        $fullUrl = $this->baseUrl . '/' . ltrim($endpoint, '/');
-        echo "\n🔍 DEBUG REQUEST:\n";
-        echo "Base URL: " . $this->baseUrl . "\n";
-        echo "Endpoint: " . $endpoint . "\n";
-        echo "Full URL: " . $fullUrl . "\n";
-        echo "Method: " . $method . "\n\n";
+     
 
 
             $client = new Client([

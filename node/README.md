@@ -1,15 +1,15 @@
-# @ilhamuket/tripay
+# @uket/tripay
 
 SDK Tripay Payment Gateway untuk Node.js dan TypeScript. Tanpa dependency (pakai `fetch` bawaan Node 18+), dengan modul NestJS opsional.
 
 ```bash
-npm install @ilhamuket/tripay
+npm install @uket/tripay
 ```
 
 ## Pakai langsung
 
 ```ts
-import { Tripay } from '@ilhamuket/tripay';
+import { Tripay } from '@uket/tripay';
 
 const tripay = new Tripay({
   apiKey: process.env.TRIPAY_API_KEY!,
@@ -62,7 +62,7 @@ app.post('/tripay/callback', express.raw({ type: 'application/json' }), (req, re
 
 ```ts
 // app.module.ts
-import { TripayModule } from '@ilhamuket/tripay/nestjs';
+import { TripayModule } from '@uket/tripay/nestjs';
 
 @Module({
   imports: [

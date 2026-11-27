@@ -1,5 +1,5 @@
 {
-  "name": "@ilhamuket/tripay",
+  "name": "@uket/tripay",
   "version": "0.1.0",
   "description": "Tripay Payment Gateway SDK untuk Node.js / TypeScript, dengan modul NestJS opsional",
   "keywords": ["tripay", "payment", "payment-gateway", "qris", "virtual-account", "e-wallet", "nestjs", "indonesia"],

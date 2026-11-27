@@ -17,7 +17,7 @@ class CheckStatusResponse extends BaseResponse
      */
     public function isPaid(): bool
     {
-        return str_contains(strtoupper($this->message), 'PAID');
+        return $this->statusIs('PAID');
     }
 
     /**
@@ -25,7 +25,7 @@ class CheckStatusResponse extends BaseResponse
      */
     public function isUnpaid(): bool
     {
-        return str_contains(strtoupper($this->message), 'UNPAID');
+        return $this->statusIs('UNPAID');
     }
 
     /**
@@ -33,6 +33,15 @@ class CheckStatusResponse extends BaseResponse
      */
     public function isExpired(): bool
     {
-        return str_contains(strtoupper($this->message), 'EXPIRED');
+        return $this->statusIs('EXPIRED');
+    }
+
+    /**
+     * Cocokkan status per kata. `str_contains('UNPAID', 'PAID')` bernilai true,
+     * jadi pencocokan substring membuat transaksi UNPAID terbaca lunas.
+     */
+    protected function statusIs(string $status): bool
+    {
+        return preg_match('/\\b' . preg_quote($status, '/') . '\\b/i', $this->message) === 1;
     }
 }

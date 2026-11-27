@@ -19,6 +19,7 @@ class Tripay
     protected string $merchantCode;
     protected string $mode;
     protected string $baseUrl;
+    protected ?string $caBundle;
 
     public const MODE_SANDBOX = 'sandbox';
     public const MODE_PRODUCTION = 'production';
@@ -30,14 +31,16 @@ class Tripay
         string $apiKey,
         string $privateKey,
         string $merchantCode,
-        string $mode = self::MODE_SANDBOX
+        string $mode = self::MODE_SANDBOX,
+        ?string $caBundle = null
     ) {
         $this->apiKey = $apiKey;
         $this->privateKey = $privateKey;
         $this->merchantCode = $merchantCode;
         $this->mode = $mode;
+        $this->caBundle = $caBundle;
         $this->baseUrl = $this->resolveBaseUrl($mode);
-        $this->httpClient = new HttpClient($apiKey, $this->baseUrl);
+        $this->httpClient = new HttpClient($apiKey, $this->baseUrl, $caBundle);
     }
 
     /**
@@ -47,7 +50,7 @@ class Tripay
     {
         $this->mode = self::MODE_SANDBOX;
         $this->baseUrl = self::SANDBOX_URL;
-        $this->httpClient = new HttpClient($this->apiKey, $this->baseUrl);
+        $this->httpClient = new HttpClient($this->apiKey, $this->baseUrl, $this->caBundle);
         
         return $this;
     }
@@ -59,7 +62,7 @@ class Tripay
     {
         $this->mode = self::MODE_PRODUCTION;
         $this->baseUrl = self::PRODUCTION_URL;
-        $this->httpClient = new HttpClient($this->apiKey, $this->baseUrl);
+        $this->httpClient = new HttpClient($this->apiKey, $this->baseUrl, $this->caBundle);
         
         return $this;
     }

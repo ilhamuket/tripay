@@ -51,4 +51,16 @@ return [
     */
     'sandbox_url' => env('TRIPAY_SANDBOX_URL', 'https://tripay.co.id/api-sandbox'),
     'production_url' => env('TRIPAY_PRODUCTION_URL', 'https://tripay.co.id/api'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | CA Bundle
+    |--------------------------------------------------------------------------
+    |
+    | Path file CA bundle (mis. cacert.pem dari https://curl.se/docs/caextract.html)
+    | bila server gagal memverifikasi sertifikat Tripay (cURL error 60/77).
+    | Verifikasi TLS selalu aktif; opsi ini hanya mengganti daftar CA.
+    |
+    */
+    'ca_bundle' => env('TRIPAY_CA_BUNDLE'),
 ];

@@ -11,11 +11,17 @@ class HttpClient
 {
     protected string $baseUrl;
     protected string $apiKey;
+    protected ?string $caBundle;
 
-    public function __construct(string $apiKey, string $baseUrl)
+    /**
+     * @param string|null $caBundle Path file CA bundle (mis. cacert.pem) bila CA bawaan server
+     *                              tidak lengkap. Verifikasi TLS tetap aktif.
+     */
+    public function __construct(string $apiKey, string $baseUrl, ?string $caBundle = null)
     {
-        $this->apiKey  = $apiKey;
-        $this->baseUrl = rtrim($baseUrl, '/');
+        $this->apiKey   = $apiKey;
+        $this->baseUrl  = rtrim($baseUrl, '/');
+        $this->caBundle = $caBundle !== null && $caBundle !== '' ? $caBundle : null;
     }
 
     /**
@@ -39,31 +45,27 @@ class HttpClient
     }
 
     /**
-     * Main request handler (with SSL auto fallback)
+     * Main request handler.
+     *
+     * Verifikasi TLS selalu aktif. Tidak ada fallback ke verify=false: fallback itu membuka
+     * celah MITM (API key bocor, respons palsu diterima). Bila server gagal memverifikasi
+     * sertifikat, perbaiki CA bundle (config `tripay.ca_bundle` / TRIPAY_CA_BUNDLE).
      */
     protected function request(string $method, string $endpoint, array $options = []): array
     {
-        try {
-            // 🔐 First attempt: SSL enabled (secure default)
-            return $this->send($method, $endpoint, $options, true);
-        } catch (TripayConnectionException $e) {
-            // 🔥 Auto fallback ONLY for SSL-related errors
-            if ($this->isSslError($e)) {
-                return $this->send($method, $endpoint, $options, false);
-            }
-
-            throw $e;
-        }
+        return $this->send($method, $endpoint, $options, $this->caBundle ?? true);
     }
 
     /**
      * Low-level HTTP sender
+     *
+     * @param bool|string $verify true atau path CA bundle
      */
-   protected function send(
+    protected function send(
         string $method,
         string $endpoint,
         array $options,
-        bool $verifySsl
+        bool|string $verify
     ): array {
         try {
 
@@ -76,11 +78,11 @@ class HttpClient
                 'timeout'         => 30,
                 'connect_timeout' => 10,
                 'http_errors'     => false,
-                'verify'          => $verifySsl,
+                'verify'          => $verify,
                 'headers'         => [
                     'Authorization' => 'Bearer ' . $this->apiKey,
                     'Accept'        => 'application/json',
-                    'User-Agent'    => 'ilhamuket/tripay-sdk/1.0.3',
+                    'User-Agent'    => 'ilhamuket/tripay-sdk/1.0.11',
                 ],
             ]);
 
@@ -124,21 +126,5 @@ class HttpClient
                 $e
             );
         }
-    }
-
-
-
-    /**
-     * Detect SSL / certificate related errors
-     */
-    protected function isSslError(TripayConnectionException $e): bool
-    {
-        $message = strtolower($e->getMessage());
-
-        return str_contains($message, 'ssl')
-            || str_contains($message, 'certificate')
-            || str_contains($message, 'cainfo')
-            || str_contains($message, 'curl error 77')
-            || str_contains($message, 'curl error 60');
     }
 }

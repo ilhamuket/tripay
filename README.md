@@ -41,7 +41,15 @@ TRIPAY_MODE=sandbox
 TRIPAY_MERCHANT_CODE=your-merchant-code
 TRIPAY_API_KEY=your-api-key
 TRIPAY_PRIVATE_KEY=your-private-key
+
+# Opsional: path CA bundle bila muncul "cURL error 60/77: SSL certificate problem"
+# TRIPAY_CA_BUNDLE=/path/to/cacert.pem
 ```
+
+> **SSL:** verifikasi sertifikat selalu aktif (sejak v1.0.11 tidak ada lagi fallback otomatis ke `verify=false`).
+> Kalau server gagal memverifikasi sertifikat Tripay, unduh `cacert.pem` dari
+> [curl.se/docs/caextract.html](https://curl.se/docs/caextract.html) lalu isi `TRIPAY_CA_BUNDLE`,
+> atau oper argumen `caBundle` saat membuat `new Tripay(...)` tanpa Laravel.
 
 ## 🚀 Usage
 

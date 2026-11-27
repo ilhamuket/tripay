@@ -18,7 +18,8 @@ class TripayServiceProvider extends ServiceProvider
                 apiKey: config('tripay.api_key'),
                 privateKey: config('tripay.private_key'),
                 merchantCode: config('tripay.merchant_code'),
-                mode: config('tripay.mode', 'sandbox')
+                mode: config('tripay.mode', 'sandbox'),
+                caBundle: config('tripay.ca_bundle')
             );
         });
 

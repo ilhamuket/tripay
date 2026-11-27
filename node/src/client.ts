@@ -24,7 +24,7 @@ import type {
 
 export const SANDBOX_URL = 'https://tripay.co.id/api-sandbox';
 export const PRODUCTION_URL = 'https://tripay.co.id/api';
-const USER_AGENT = 'ilhamuket-tripay-node/0.2.0';
+const USER_AGENT = 'ilhamuket-tripay-node/0.2.1';
 
 type Query = Record<string, string | number | undefined | null>;
 interface Envelope<T> {

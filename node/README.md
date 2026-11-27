@@ -1,6 +1,13 @@
-# @uket/tripay
+# @uket/tripay: Tripay SDK untuk Node.js, TypeScript & NestJS
 
-SDK Tripay Payment Gateway untuk Node.js dan TypeScript. Tanpa dependency (pakai `fetch` bawaan Node 18+), dengan modul NestJS opsional.
+[![npm](https://img.shields.io/npm/v/@uket/tripay.svg?style=flat-square)](https://www.npmjs.com/package/@uket/tripay)
+[![CI](https://github.com/ilhamuket/tripay/actions/workflows/ci.yml/badge.svg)](https://github.com/ilhamuket/tripay/actions/workflows/ci.yml)
+
+**Library Tripay untuk Node.js / TypeScript / NestJS / Express**, untuk integrasi [Tripay Payment Gateway](https://tripay.co.id):
+QRIS, Virtual Account, e-wallet, retail, Open Payment, dan verifikasi callback. Signature dibuat otomatis.
+Tanpa dependency (memakai `fetch` bawaan Node 18+), dengan tipe TypeScript lengkap dan modul NestJS opsional.
+
+> ℹ️ Library komunitas (tidak resmi), tidak berafiliasi dengan Tripay. Versi PHP/Laravel: [`ilhamuket/tripay`](https://github.com/ilhamuket/tripay).
 
 ```bash
 npm install @uket/tripay

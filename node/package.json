@@ -1,19 +1,56 @@
 {
   "name": "@uket/tripay",
-  "version": "0.2.0",
-  "description": "Tripay Payment Gateway SDK untuk Node.js / TypeScript, dengan modul NestJS opsional",
-  "keywords": ["tripay", "payment", "payment-gateway", "qris", "virtual-account", "e-wallet", "nestjs", "indonesia"],
+  "version": "0.2.1",
+  "description": "Tripay payment gateway SDK for Node.js, TypeScript & NestJS: QRIS, virtual account, e-wallet, open payment, callback verification, auto signature",
+  "keywords": [
+    "tripay",
+    "tripay-api",
+    "tripay-sdk",
+    "tripay-nodejs",
+    "tripay-nestjs",
+    "payment",
+    "payment-gateway",
+    "payment-gateway-indonesia",
+    "qris",
+    "virtual-account",
+    "e-wallet",
+    "open-payment",
+    "webhook",
+    "nestjs",
+    "typescript",
+    "nodejs",
+    "indonesia"
+  ],
   "license": "MIT",
   "author": "Ilham Uket",
-  "homepage": "https://github.com/ilhamuket/tripay-sdk/tree/main/node",
+  "homepage": "https://github.com/ilhamuket/tripay/tree/main/node#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ilhamuket/tripay.git",
+    "directory": "node"
+  },
+  "bugs": {
+    "url": "https://github.com/ilhamuket/tripay/issues"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
-    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
-    "./nestjs": { "types": "./dist/nestjs.d.ts", "default": "./dist/nestjs.js" }
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./nestjs": {
+      "types": "./dist/nestjs.d.ts",
+      "default": "./dist/nestjs.js"
+    }
   },
-  "files": ["dist", "README.md"],
-  "engines": { "node": ">=18" },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "tsc -p tsconfig.test.json && node --test \"build/test/*.test.js\"",
@@ -23,7 +60,9 @@
     "@nestjs/common": ">=9"
   },
   "peerDependenciesMeta": {
-    "@nestjs/common": { "optional": true }
+    "@nestjs/common": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@nestjs/common": "^10.4.15",

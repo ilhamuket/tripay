@@ -73,7 +73,7 @@ paths:
       summary: Daftar transaksi merchant
       parameters:
         - { name: page, in: query, schema: { type: integer, minimum: 1 } }
-        - { name: per_page, in: query, schema: { type: integer, minimum: 1 } }
+        - { name: per_page, in: query, schema: { type: integer, minimum: 1, maximum: 50 } }
         - { name: sort, in: query, schema: { type: string, enum: [asc, desc] } }
         - { name: reference, in: query, schema: { type: string } }
         - { name: merchant_ref, in: query, schema: { type: string } }
@@ -358,7 +358,13 @@ components:
         checkout_url: { type: string }
         status: { $ref: '#/components/schemas/TransactionStatus' }
         expired_time: { type: integer }
-        paid_at: { type: integer, nullable: true }
+        paid_at:
+          nullable: true
+          description: int di daftar transaksi, string di contoh detail dokumentasi.
+          oneOf: [{ type: integer }, { type: string }]
+        note: { type: string, nullable: true }
+        created_at: { type: integer }
+        expired_at: { type: integer }
         qr_string: { type: string, nullable: true }
         qr_url: { type: string, nullable: true }
         order_items:

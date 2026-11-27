@@ -109,7 +109,12 @@ export interface Transaction {
   checkout_url?: string;
   status: TransactionStatus;
   expired_time?: number;
-  paid_at?: number | null;
+  /** Dokumentasi Tripay: int di daftar transaksi, string di contoh detail. */
+  paid_at?: number | string | null;
+  /** Hanya di daftar transaksi. */
+  note?: string | null;
+  created_at?: number;
+  expired_at?: number;
   qr_string?: string | null;
   qr_url?: string | null;
   order_items?: OrderItem[];

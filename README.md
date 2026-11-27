@@ -6,6 +6,8 @@
 
 SDK PHP untuk mengintegrasikan [Tripay Payment Gateway](https://tripay.co.id) dengan Laravel 10, 11, dan 12.
 
+> Pakai Node.js / NestJS? Lihat [`node/`](node/) (`@ilhamuket/tripay`). Semua versi mengikuti spec bersama di [`spec/`](spec/).
+
 ## ✨ Features
 
 - ✅ Support Laravel 10, 11, 12

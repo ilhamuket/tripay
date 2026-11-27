@@ -1,0 +1,386 @@
+openapi: 3.0.3
+info:
+  title: Tripay Payment Gateway (Closed Payment)
+  version: 0.1.0
+  description: |
+    Sumber kebenaran untuk SDK `ilhamuket/tripay` di semua bahasa.
+    Disusun dari library PHP `ilhamuket/tripay` v1.x. Field yang belum pasti ditandai opsional.
+
+    Bagian yang TIDAK bisa di-generate dan wajib ditulis tangan per bahasa
+    (lihat `spec/test-vectors.json`):
+    - `signature` transaksi = HMAC-SHA256(merchant_code + merchant_ref + amount, private_key), hex lowercase.
+    - Verifikasi callback = HMAC-SHA256(raw body, private_key) dibandingkan constant-time
+      dengan header `X-Callback-Signature`. Pakai raw body apa adanya, jangan hasil re-encode JSON.
+    - Verifikasi TLS selalu aktif. Jangan pernah fallback ke `verify=false`.
+servers:
+  - url: https://tripay.co.id/api-sandbox
+    description: Sandbox
+  - url: https://tripay.co.id/api
+    description: Production
+security:
+  - bearerApiKey: []
+
+paths:
+  /merchant/payment-channel:
+    get:
+      operationId: getPaymentChannels
+      summary: Daftar channel pembayaran aktif
+      parameters:
+        - $ref: '#/components/parameters/OptionalChannelCode'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/PaymentChannel' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /merchant/fee-calculator:
+    get:
+      operationId: calculateFee
+      summary: Hitung biaya transaksi per channel
+      parameters:
+        - name: amount
+          in: query
+          required: true
+          schema: { type: integer, minimum: 1 }
+        - $ref: '#/components/parameters/OptionalChannelCode'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/FeeCalculation' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /merchant/transactions:
+    get:
+      operationId: getTransactions
+      summary: Daftar transaksi merchant
+      parameters:
+        - { name: page, in: query, schema: { type: integer, minimum: 1 } }
+        - { name: per_page, in: query, schema: { type: integer, minimum: 1 } }
+        - { name: sort, in: query, schema: { type: string, enum: [asc, desc] } }
+        - { name: reference, in: query, schema: { type: string } }
+        - { name: merchant_ref, in: query, schema: { type: string } }
+        - { name: method, in: query, schema: { type: string } }
+        - { name: status, in: query, schema: { $ref: '#/components/schemas/TransactionStatus' } }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/Transaction' }
+                      pagination: { $ref: '#/components/schemas/Pagination' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /transaction/create:
+    post:
+      operationId: createTransaction
+      summary: Buat transaksi closed payment
+      description: Dikirim sebagai form (`order_items[0][name]=...`), sama seperti `http_build_query` di PHP.
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema: { $ref: '#/components/schemas/CreateTransactionRequest' }
+            encoding:
+              order_items: { style: deepObject, explode: true }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/Transaction' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /transaction/detail:
+    get:
+      operationId: getTransactionDetail
+      summary: Detail transaksi
+      parameters:
+        - $ref: '#/components/parameters/Reference'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/Transaction' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /transaction/check-status:
+    get:
+      operationId: checkTransactionStatus
+      summary: Cek status transaksi (status ada di dalam `message`)
+      description: |
+        Status hanya muncul sebagai teks di `message`. SDK harus mencocokkan per kata
+        (`UNPAID` tidak boleh terbaca sebagai `PAID`).
+      parameters:
+        - $ref: '#/components/parameters/Reference'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Envelope' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /payment/instruction:
+    get:
+      operationId: getPaymentInstruction
+      summary: Instruksi pembayaran per channel
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema: { $ref: '#/components/schemas/ChannelCode' }
+        - { name: pay_code, in: query, schema: { type: string } }
+        - { name: amount, in: query, schema: { type: integer, minimum: 1 } }
+        - { name: allow_html, in: query, schema: { type: integer, enum: [0, 1], default: 1 } }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/Instruction' }
+        default: { $ref: '#/components/responses/Error' }
+
+webhooks:
+  paymentStatus:
+    post:
+      summary: Callback status pembayaran dari Tripay ke `callback_url`
+      parameters:
+        - name: X-Callback-Signature
+          in: header
+          required: true
+          schema: { type: string }
+          description: HMAC-SHA256(raw body, private_key), hex.
+        - name: X-Callback-Event
+          in: header
+          schema: { type: string, example: payment_status }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CallbackPayload' }
+      responses:
+        '200':
+          description: Balas `{"success": true}` setelah diproses.
+
+components:
+  securitySchemes:
+    bearerApiKey:
+      type: http
+      scheme: bearer
+      description: API key merchant (`Authorization: Bearer <api_key>`).
+
+  parameters:
+    OptionalChannelCode:
+      name: code
+      in: query
+      schema: { $ref: '#/components/schemas/ChannelCode' }
+    Reference:
+      name: reference
+      in: query
+      required: true
+      schema: { type: string }
+
+  responses:
+    Error:
+      description: Error dari Tripay (HTTP >= 400 atau `success=false`)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Envelope' }
+
+  schemas:
+    Envelope:
+      type: object
+      required: [message]
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+
+    ChannelCode:
+      type: string
+      description: Kode channel. Daftar ini bisa bertambah, jadi jangan dijadikan enum tertutup di SDK.
+      example: BRIVA
+      x-known-values:
+        [ALFAMART, ALFAMIDI, BCAVA, BNIVA, BRIVA, BSIVA, CIMBVA, DANA, INDOMARET, MANDIRIVA,
+         MUAMALATVA, MYBVA, OCBCVA, OVO, PERMATAVA, QRIS, QRIS2, QRISC, SAMPOERNAVA, SHOPEEPAY, SMSVA]
+
+    TransactionStatus:
+      type: string
+      enum: [UNPAID, PAID, EXPIRED, FAILED, REFUND]
+
+    Fee:
+      type: object
+      properties:
+        flat: { type: number }
+        percent: { type: number }
+
+    PaymentChannel:
+      type: object
+      properties:
+        group: { type: string }
+        code: { $ref: '#/components/schemas/ChannelCode' }
+        name: { type: string }
+        type: { type: string }
+        fee_merchant: { $ref: '#/components/schemas/Fee' }
+        fee_customer: { $ref: '#/components/schemas/Fee' }
+        total_fee: { $ref: '#/components/schemas/Fee' }
+        minimum_fee: { type: number, nullable: true }
+        maximum_fee: { type: number, nullable: true }
+        minimum_amount: { type: integer }
+        maximum_amount: { type: integer }
+        icon_url: { type: string }
+        active: { type: boolean }
+
+    FeeCalculation:
+      type: object
+      properties:
+        code: { $ref: '#/components/schemas/ChannelCode' }
+        name: { type: string }
+        fee: { type: object, additionalProperties: true }
+        total_fee:
+          type: object
+          properties:
+            merchant: { type: integer }
+            customer: { type: integer }
+
+    OrderItem:
+      type: object
+      required: [name, price, quantity]
+      properties:
+        sku: { type: string }
+        name: { type: string }
+        price: { type: integer, minimum: 0 }
+        quantity: { type: integer, minimum: 1 }
+        subtotal: { type: integer }
+        product_url: { type: string }
+        image_url: { type: string }
+
+    CreateTransactionRequest:
+      type: object
+      required: [method, merchant_ref, amount, customer_name, customer_email, order_items, signature]
+      properties:
+        method: { $ref: '#/components/schemas/ChannelCode' }
+        merchant_ref: { type: string }
+        amount: { type: integer, minimum: 1 }
+        customer_name: { type: string }
+        customer_email: { type: string, format: email }
+        customer_phone: { type: string }
+        order_items:
+          type: array
+          minItems: 1
+          items: { $ref: '#/components/schemas/OrderItem' }
+        callback_url: { type: string, format: uri }
+        return_url: { type: string, format: uri }
+        expired_time:
+          type: integer
+          description: Unix timestamp (detik) kapan transaksi kedaluwarsa.
+        signature:
+          type: string
+          description: Diisi SDK, bukan oleh pemanggil. Lihat `info.description`.
+
+    Instruction:
+      type: object
+      properties:
+        title: { type: string }
+        steps:
+          type: array
+          items: { type: string }
+
+    Transaction:
+      type: object
+      properties:
+        reference: { type: string }
+        merchant_ref: { type: string }
+        payment_method: { $ref: '#/components/schemas/ChannelCode' }
+        payment_name: { type: string }
+        customer_name: { type: string }
+        customer_email: { type: string }
+        customer_phone: { type: string, nullable: true }
+        amount: { type: integer }
+        fee_merchant: { type: integer }
+        fee_customer: { type: integer }
+        total_fee: { type: integer }
+        amount_received: { type: integer }
+        pay_code: { type: string, nullable: true }
+        pay_url: { type: string, nullable: true }
+        checkout_url: { type: string }
+        status: { $ref: '#/components/schemas/TransactionStatus' }
+        expired_time: { type: integer }
+        paid_at: { type: integer, nullable: true }
+        qr_string: { type: string, nullable: true }
+        qr_url: { type: string, nullable: true }
+        order_items:
+          type: array
+          items: { $ref: '#/components/schemas/OrderItem' }
+        instructions:
+          type: array
+          items: { $ref: '#/components/schemas/Instruction' }
+
+    Pagination:
+      type: object
+      properties:
+        current_page: { type: integer }
+        last_page: { type: integer }
+        per_page: { type: integer }
+        total_records: { type: integer }
+        next_page: { type: integer, nullable: true }
+        previous_page: { type: integer, nullable: true }
+
+    CallbackPayload:
+      type: object
+      properties:
+        reference: { type: string }
+        merchant_ref: { type: string, nullable: true }
+        payment_method: { type: string }
+        payment_method_code: { $ref: '#/components/schemas/ChannelCode' }
+        total_amount: { type: integer }
+        fee_merchant: { type: integer }
+        fee_customer: { type: integer }
+        total_fee: { type: integer }
+        amount_received: { type: integer }
+        is_closed_payment: { type: integer, enum: [0, 1] }
+        status: { type: string, enum: [PAID, EXPIRED, FAILED, REFUND] }
+        paid_at: { type: integer, nullable: true }
+        note: { type: string, nullable: true }

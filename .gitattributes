@@ -1,0 +1,6 @@
+# Jangan ikutkan kode bahasa lain di paket Composer (Packagist dist).
+/node        export-ignore
+/spec        export-ignore
+/scripts     export-ignore
+/.github     export-ignore
+/.gitattributes export-ignore

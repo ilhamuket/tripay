@@ -1,0 +1,62 @@
+{
+  "signature": [
+    {
+      "merchantCode": "T0001",
+      "privateKey": "private-key-sandbox",
+      "merchantRef": "INV-0001",
+      "amount": 50000,
+      "expected": "0d090fab0aa182e10f5c51f661b5578a5310fac99bc02268e79f99ce085c1159"
+    },
+    {
+      "merchantCode": "T0001",
+      "privateKey": "private-key-sandbox",
+      "merchantRef": "INV-0002",
+      "amount": 1,
+      "expected": "3e95e5fe0eaf6c99788e4a45c117a139f5f31f8cd0ab29ec390000e9b450f330"
+    },
+    {
+      "merchantCode": "T12345",
+      "privateKey": "aBcD3-fGh1J-kLmN0",
+      "merchantRef": "ORDER/2026/11/27-001",
+      "amount": 1250000,
+      "expected": "483c1614599db6fdfa0812c2675e23daa12ef3556636af2f26131fe2e151097b"
+    }
+  ],
+  "callback": [
+    {
+      "name": "valid",
+      "privateKey": "private-key-sandbox",
+      "rawBody": "{\"reference\":\"DEV-T0001000012345ABCDE\",\"merchant_ref\":\"INV-0001\",\"payment_method\":\"BRI Virtual Account\",\"payment_method_code\":\"BRIVA\",\"total_amount\":54250,\"fee_merchant\":0,\"fee_customer\":4250,\"total_fee\":4250,\"amount_received\":50000,\"is_closed_payment\":1,\"status\":\"PAID\",\"paid_at\":1795740000,\"note\":null}",
+      "signature": "c070950d3a43039d9a9706edad89435ccacdaf37e58d874478ed37583fbf0234",
+      "valid": true
+    },
+    {
+      "name": "body diubah (status EXPIRED) dengan signature lama",
+      "privateKey": "private-key-sandbox",
+      "rawBody": "{\"reference\":\"DEV-T0001000012345ABCDE\",\"merchant_ref\":\"INV-0001\",\"payment_method\":\"BRI Virtual Account\",\"payment_method_code\":\"BRIVA\",\"total_amount\":54250,\"fee_merchant\":0,\"fee_customer\":4250,\"total_fee\":4250,\"amount_received\":50000,\"is_closed_payment\":1,\"status\":\"EXPIRED\",\"paid_at\":1795740000,\"note\":null}",
+      "signature": "c070950d3a43039d9a9706edad89435ccacdaf37e58d874478ed37583fbf0234",
+      "valid": false
+    },
+    {
+      "name": "private key lain",
+      "privateKey": "private-key-lain",
+      "rawBody": "{\"reference\":\"DEV-T0001000012345ABCDE\",\"merchant_ref\":\"INV-0001\",\"payment_method\":\"BRI Virtual Account\",\"payment_method_code\":\"BRIVA\",\"total_amount\":54250,\"fee_merchant\":0,\"fee_customer\":4250,\"total_fee\":4250,\"amount_received\":50000,\"is_closed_payment\":1,\"status\":\"PAID\",\"paid_at\":1795740000,\"note\":null}",
+      "signature": "c070950d3a43039d9a9706edad89435ccacdaf37e58d874478ed37583fbf0234",
+      "valid": false
+    },
+    {
+      "name": "signature kosong",
+      "privateKey": "private-key-sandbox",
+      "rawBody": "{\"reference\":\"DEV-T0001000012345ABCDE\",\"merchant_ref\":\"INV-0001\",\"payment_method\":\"BRI Virtual Account\",\"payment_method_code\":\"BRIVA\",\"total_amount\":54250,\"fee_merchant\":0,\"fee_customer\":4250,\"total_fee\":4250,\"amount_received\":50000,\"is_closed_payment\":1,\"status\":\"PAID\",\"paid_at\":1795740000,\"note\":null}",
+      "signature": "",
+      "valid": false
+    },
+    {
+      "name": "signature panjang beda",
+      "privateKey": "private-key-sandbox",
+      "rawBody": "{\"reference\":\"DEV-T0001000012345ABCDE\",\"merchant_ref\":\"INV-0001\",\"payment_method\":\"BRI Virtual Account\",\"payment_method_code\":\"BRIVA\",\"total_amount\":54250,\"fee_merchant\":0,\"fee_customer\":4250,\"total_fee\":4250,\"amount_received\":50000,\"is_closed_payment\":1,\"status\":\"PAID\",\"paid_at\":1795740000,\"note\":null}",
+      "signature": "abc123",
+      "valid": false
+    }
+  ]
+}

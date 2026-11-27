@@ -1,0 +1,35 @@
+{
+  "name": "@ilhamuket/tripay",
+  "version": "0.1.0",
+  "description": "Tripay Payment Gateway SDK untuk Node.js / TypeScript, dengan modul NestJS opsional",
+  "keywords": ["tripay", "payment", "payment-gateway", "qris", "virtual-account", "e-wallet", "nestjs", "indonesia"],
+  "license": "MIT",
+  "author": "Ilham Uket",
+  "homepage": "https://github.com/ilhamuket/tripay-sdk/tree/main/node",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+    "./nestjs": { "types": "./dist/nestjs.d.ts", "default": "./dist/nestjs.js" }
+  },
+  "files": ["dist", "README.md"],
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "tsc -p tsconfig.test.json && node --test \"build/test/*.test.js\"",
+    "prepublishOnly": "npm test && npm run build"
+  },
+  "peerDependencies": {
+    "@nestjs/common": ">=9"
+  },
+  "peerDependenciesMeta": {
+    "@nestjs/common": { "optional": true }
+  },
+  "devDependencies": {
+    "@nestjs/common": "^10.4.15",
+    "@types/node": "^22.10.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1",
+    "typescript": "^5.7.2"
+  }
+}

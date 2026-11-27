@@ -11,3 +11,9 @@ phpunit.xml
 *.swo
 .DS_Store
 Thumbs.db
+
+# SDK Node
+/node/node_modules/
+/node/dist/
+/node/build/
+*.tgz

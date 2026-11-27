@@ -6,7 +6,10 @@ use Ilhamuket\Tripay\Data\TransactionData;
 use Ilhamuket\Tripay\Response\CheckStatusResponse;
 use Ilhamuket\Tripay\Response\CreateTransactionResponse;
 use Ilhamuket\Tripay\Response\FeeCalculatorResponse;
+use Ilhamuket\Tripay\Exceptions\TripayApiException;
 use Ilhamuket\Tripay\Response\InstructionResponse;
+use Ilhamuket\Tripay\Response\OpenPaymentResponse;
+use Ilhamuket\Tripay\Response\OpenPaymentTransactionsResponse;
 use Ilhamuket\Tripay\Response\PaymentChannelResponse;
 use Ilhamuket\Tripay\Response\TransactionDetailResponse;
 use Ilhamuket\Tripay\Response\TransactionResponse;
@@ -185,6 +188,96 @@ class Tripay
         $response = $this->httpClient->get('payment/instruction', $params);
         
         return new InstructionResponse($response);
+    }
+
+    /**
+     * Buat Open Payment: kode bayar / QRIS yang bisa dibayar berulang kali.
+     * Hanya tersedia di production (sandbox Tripay membalas 404).
+     */
+    public function createOpenPayment(
+        string $method,
+        ?string $merchantRef = null,
+        ?string $customerName = null
+    ): OpenPaymentResponse {
+        $this->assertOpenPaymentAvailable();
+
+        if (trim($method) === '') {
+            throw new \InvalidArgumentException('Field method is required');
+        }
+
+        $payload = [
+            'method' => $method,
+            'signature' => $this->generateOpenPaymentSignature($method, $merchantRef ?? ''),
+        ];
+
+        if ($merchantRef !== null && $merchantRef !== '') {
+            $payload['merchant_ref'] = $merchantRef;
+        }
+
+        if ($customerName !== null && $customerName !== '') {
+            $payload['customer_name'] = $customerName;
+        }
+
+        return new OpenPaymentResponse($this->httpClient->post('open-payment/create', $payload));
+    }
+
+    /**
+     * Detail Open Payment berdasarkan UUID.
+     */
+    public function getOpenPaymentDetail(string $uuid): OpenPaymentResponse
+    {
+        $this->assertOpenPaymentAvailable();
+
+        return new OpenPaymentResponse(
+            $this->httpClient->get('open-payment/' . $this->encodeUuid($uuid) . '/detail')
+        );
+    }
+
+    /**
+     * Daftar pembayaran yang masuk ke satu Open Payment.
+     *
+     * @param array $params reference, merchant_ref, start_date, end_date ("Y-m-d H:i:s"),
+     *                      per_page (maks 100), page
+     */
+    public function getOpenPaymentTransactions(string $uuid, array $params = []): OpenPaymentTransactionsResponse
+    {
+        $this->assertOpenPaymentAvailable();
+
+        $allowedParams = ['reference', 'merchant_ref', 'start_date', 'end_date', 'per_page', 'page'];
+        $filteredParams = array_intersect_key($params, array_flip($allowedParams));
+
+        return new OpenPaymentTransactionsResponse(
+            $this->httpClient->get('open-payment/' . $this->encodeUuid($uuid) . '/transactions', $filteredParams)
+        );
+    }
+
+    /**
+     * Signature Open Payment: HMAC-SHA256(merchantCode + method + merchantRef, privateKey).
+     * Urutannya beda dari closed payment.
+     */
+    public function generateOpenPaymentSignature(string $method, string $merchantRef = ''): string
+    {
+        return hash_hmac('sha256', $this->merchantCode . $method . $merchantRef, $this->privateKey);
+    }
+
+    protected function assertOpenPaymentAvailable(): void
+    {
+        if ($this->isSandbox()) {
+            throw new TripayApiException(
+                'Open Payment hanya tersedia di mode production (sandbox Tripay tidak menyediakan endpoint ini)'
+            );
+        }
+    }
+
+    protected function encodeUuid(string $uuid): string
+    {
+        $uuid = trim($uuid);
+
+        if ($uuid === '') {
+            throw new \InvalidArgumentException('Open Payment UUID is required');
+        }
+
+        return rawurlencode($uuid);
     }
 
     /**

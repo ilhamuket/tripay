@@ -13,6 +13,7 @@ SDK PHP untuk mengintegrasikan [Tripay Payment Gateway](https://tripay.co.id) de
 - ✅ Support Laravel 10, 11, 12
 - ✅ PHP 8.2+
 - ✅ Closed Payment Transaction
+- ✅ Open Payment (kode bayar / QRIS berulang, khusus production)
 - ✅ Payment Channels
 - ✅ Fee Calculator
 - ✅ Transaction List & Detail
@@ -149,6 +150,38 @@ $tripay->production(); // Switch to production
 $tripay->sandbox();    // Switch to sandbox
 ```
 
+## 🔁 Open Payment
+
+Kode bayar (VA) atau QRIS yang bisa dibayar berulang kali, misalnya untuk top-up member.
+**Hanya tersedia di production**; di mode sandbox SDK langsung melempar `TripayApiException`.
+
+```php
+// TRIPAY_MODE=production
+$op = Tripay::createOpenPayment(
+    method: 'QRIS',            // atau kode VA, mis. 'BCAVA'
+    merchantRef: 'MEMBER-0042', // opsional
+    customerName: 'Budi'        // opsional
+);
+
+$uuid = $op->getUuid();       // simpan untuk cek detail / riwayat pembayaran
+$op->getQrString();           // QRIS; untuk VA pakai $op->getPayCode()
+
+$detail = Tripay::getOpenPaymentDetail($uuid);
+
+$history = Tripay::getOpenPaymentTransactions($uuid, [
+    'start_date' => '2026-11-01 00:00:00', // format Y-m-d H:i:s
+    'end_date'   => '2026-11-30 23:59:59',
+    'per_page'   => 50,                    // maks 100
+]);
+foreach ($history->getTransactions() as $payment) {
+    // $payment['reference'], $payment['amount'], $payment['status'], ...
+}
+```
+
+Pembayaran Open Payment juga dikirim ke callback dengan `is_closed_payment = 0`
+(`$callback->isClosedPayment()` bernilai `false`). Signature Open Payment dibuat otomatis:
+`HMAC-SHA256(merchantCode + method + merchantRef, privateKey)`.
+
 ## 🔔 Handling Callback
 
 Create a controller to handle Tripay callbacks:
@@ -263,6 +296,10 @@ PaymentMethod::isQris('QRIS');      // Check if method is QRIS
 | `validateCallback(string $signature, string $json)` | Validate callback signature |
 | `parseCallback(string $json)` | Parse callback data |
 | `generateSignature(string $merchantRef, int $amount)` | Generate transaction signature |
+| `createOpenPayment(string $method, ?string $merchantRef, ?string $customerName)` | Create Open Payment (production) |
+| `getOpenPaymentDetail(string $uuid)` | Get Open Payment detail (production) |
+| `getOpenPaymentTransactions(string $uuid, array $params)` | List payments of an Open Payment (production) |
+| `generateOpenPaymentSignature(string $method, string $merchantRef)` | Generate Open Payment signature |
 | `sandbox()` | Switch to sandbox mode |
 | `production()` | Switch to production mode |
 

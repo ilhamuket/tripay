@@ -12,6 +12,16 @@ export function transactionSignature(
   return hmacHex(`${merchantCode}${merchantRef}${amount}`, privateKey);
 }
 
+/** Signature Open Payment: HMAC-SHA256(merchantCode + method + merchantRef, privateKey), hex. */
+export function openPaymentSignature(
+  merchantCode: string,
+  method: string,
+  merchantRef: string,
+  privateKey: string,
+): string {
+  return hmacHex(`${merchantCode}${method}${merchantRef}`, privateKey);
+}
+
 /**
  * Cocokkan header `X-Callback-Signature` dengan HMAC-SHA256 dari raw body.
  * `rawBody` wajib body asli dari request, bukan hasil `JSON.stringify` ulang.

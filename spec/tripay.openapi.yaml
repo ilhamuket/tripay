@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
-  title: Tripay Payment Gateway (Closed Payment)
-  version: 0.1.1
+  title: Tripay Payment Gateway
+  version: 0.2.0
   description: |
     Sumber kebenaran untuk SDK `ilhamuket/tripay` di semua bahasa.
     Disusun dari library PHP `ilhamuket/tripay` v1.x. Field yang belum pasti ditandai opsional.
@@ -186,6 +186,88 @@ paths:
                         items: { $ref: '#/components/schemas/Instruction' }
         default: { $ref: '#/components/responses/Error' }
 
+  /open-payment/create:
+    post:
+      operationId: createOpenPayment
+      summary: Buat Open Payment (kode bayar / QRIS yang bisa dipakai berulang)
+      description: |
+        Hanya production; sandbox membalas 404.
+        signature = HMAC-SHA256(merchant_code + method + merchant_ref, private_key), hex.
+        Urutannya beda dari closed payment. merchant_ref kosong dihitung sebagai string kosong.
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema: { $ref: '#/components/schemas/CreateOpenPaymentRequest' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/OpenPayment' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /open-payment/{uuid}/detail:
+    get:
+      operationId: getOpenPaymentDetail
+      summary: Detail Open Payment (hanya production)
+      parameters:
+        - $ref: '#/components/parameters/OpenPaymentUuid'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/OpenPayment' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /open-payment/{uuid}/transactions:
+    get:
+      operationId: getOpenPaymentTransactions
+      summary: Daftar pembayaran yang masuk ke satu Open Payment (hanya production)
+      parameters:
+        - $ref: '#/components/parameters/OpenPaymentUuid'
+        - { name: reference, in: query, schema: { type: string } }
+        - { name: merchant_ref, in: query, schema: { type: string } }
+        - name: start_date
+          in: query
+          description: Format "Y-m-d H:i:s".
+          schema: { type: string, example: '2026-11-01 00:00:00' }
+        - name: end_date
+          in: query
+          description: Format "Y-m-d H:i:s".
+          schema: { type: string, example: '2026-11-30 23:59:59' }
+        - { name: per_page, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - name: page
+          in: query
+          description: Tidak disebut di dokumentasi, disimpulkan dari `pagination.next_page`.
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/OpenPaymentTransaction' }
+                      pagination: { $ref: '#/components/schemas/OpenPaymentPagination' }
+        default: { $ref: '#/components/responses/Error' }
+
 webhooks:
   paymentStatus:
     post:
@@ -220,6 +302,11 @@ components:
       name: code
       in: query
       schema: { $ref: '#/components/schemas/ChannelCode' }
+    OpenPaymentUuid:
+      name: uuid
+      in: path
+      required: true
+      schema: { type: string }
     Reference:
       name: reference
       in: query
@@ -385,6 +472,57 @@ components:
         previous_page: { type: integer, nullable: true }
         offset: { type: object, additionalProperties: { type: integer } }
         sort: { type: string }
+
+    CreateOpenPaymentRequest:
+      type: object
+      required: [method, signature]
+      properties:
+        method: { $ref: '#/components/schemas/ChannelCode' }
+        merchant_ref: { type: string }
+        customer_name: { type: string }
+        signature:
+          type: string
+          description: Diisi SDK. HMAC-SHA256(merchant_code + method + merchant_ref, private_key).
+
+    OpenPayment:
+      type: object
+      properties:
+        uuid: { type: string }
+        merchant_ref: { type: string, nullable: true }
+        customer_name: { type: string, nullable: true }
+        payment_name: { type: string }
+        payment_method: { $ref: '#/components/schemas/ChannelCode' }
+        pay_code: { type: string, nullable: true }
+        qr_string: { type: string, nullable: true }
+        qr_url: { type: string, nullable: true }
+
+    OpenPaymentTransaction:
+      type: object
+      properties:
+        reference: { type: string }
+        merchant_ref: { type: string, nullable: true }
+        payment_method: { $ref: '#/components/schemas/ChannelCode' }
+        payment_name: { type: string }
+        customer_name: { type: string, nullable: true }
+        amount: { type: integer }
+        fee_merchant: { type: integer }
+        fee_customer: { type: integer }
+        total_fee: { type: integer }
+        amount_received: { type: integer }
+        checkout_url: { type: string }
+        status: { $ref: '#/components/schemas/TransactionStatus' }
+        paid_at: { type: integer, nullable: true }
+
+    OpenPaymentPagination:
+      type: object
+      properties:
+        total: { type: integer }
+        data_from: { type: integer }
+        data_to: { type: integer }
+        per_page: { type: integer }
+        current_page: { type: integer }
+        last_page: { type: integer }
+        next_page: { type: integer, nullable: true }
 
     CallbackPayload:
       type: object

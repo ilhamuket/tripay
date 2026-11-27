@@ -11,6 +11,13 @@ const signature = [
   { merchantCode: 'T12345', privateKey: 'aBcD3-fGh1J-kLmN0', merchantRef: 'ORDER/2026/11/27-001', amount: 1250000 },
 ].map((v) => ({ ...v, expected: hmac(v.merchantCode + v.merchantRef + v.amount, v.privateKey) }));
 
+// Open Payment: HMAC-SHA256(merchantCode + method + merchantRef, privateKey). merchant_ref opsional (string kosong).
+const openPayment = [
+  { merchantCode: 'T0001', privateKey: 'private-key-sandbox', method: 'QRIS', merchantRef: 'OP-0001' },
+  { merchantCode: 'T0001', privateKey: 'private-key-sandbox', method: 'BCAVA', merchantRef: 'MEMBER/2026/0042' },
+  { merchantCode: 'T0001', privateKey: 'private-key-sandbox', method: 'QRIS', merchantRef: '' },
+].map((v) => ({ ...v, expected: hmac(v.merchantCode + v.method + v.merchantRef, v.privateKey) }));
+
 const paidBody = JSON.stringify({
   reference: 'DEV-T0001000012345ABCDE',
   merchant_ref: 'INV-0001',
@@ -50,6 +57,6 @@ const callback = [
 
 writeFileSync(
   new URL('../spec/test-vectors.json', import.meta.url),
-  JSON.stringify({ signature, callback }, null, 2) + '\n',
+  JSON.stringify({ signature, openPayment, callback }, null, 2) + '\n',
 );
-console.log(`signature: ${signature.length}, callback: ${callback.length}`);
+console.log(`signature: ${signature.length}, openPayment: ${openPayment.length}, callback: ${callback.length}`);

@@ -22,6 +22,29 @@
       "expected": "483c1614599db6fdfa0812c2675e23daa12ef3556636af2f26131fe2e151097b"
     }
   ],
+  "openPayment": [
+    {
+      "merchantCode": "T0001",
+      "privateKey": "private-key-sandbox",
+      "method": "QRIS",
+      "merchantRef": "OP-0001",
+      "expected": "494a5f429953aaeee53b8b10db2760670e825b03cade6788016405c174d53345"
+    },
+    {
+      "merchantCode": "T0001",
+      "privateKey": "private-key-sandbox",
+      "method": "BCAVA",
+      "merchantRef": "MEMBER/2026/0042",
+      "expected": "e7efc7b10b5ccf9b03160011afd4a0ba37f0dd42d0df01d041acfcf7ce744458"
+    },
+    {
+      "merchantCode": "T0001",
+      "privateKey": "private-key-sandbox",
+      "method": "QRIS",
+      "merchantRef": "",
+      "expected": "c3e24d3ad4b3afd0c93839d4231181fd27a59d840fae39b18b51ab11e8231631"
+    }
+  ],
   "callback": [
     {
       "name": "valid",

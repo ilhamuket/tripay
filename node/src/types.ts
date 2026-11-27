@@ -165,6 +165,67 @@ export interface PaymentInstructionParams {
   allowHtml?: boolean;
 }
 
+export interface CreateOpenPaymentInput {
+  method: ChannelCode;
+  merchantRef?: string;
+  customerName?: string;
+}
+
+export interface OpenPayment {
+  uuid: string;
+  merchant_ref?: string | null;
+  customer_name?: string | null;
+  payment_name?: string;
+  payment_method?: ChannelCode;
+  /** Nomor VA / kode bayar; `null` untuk QRIS. */
+  pay_code?: string | null;
+  qr_string?: string | null;
+  qr_url?: string | null;
+}
+
+export interface OpenPaymentTransaction {
+  reference: string;
+  merchant_ref?: string | null;
+  payment_method?: ChannelCode;
+  payment_name?: string;
+  customer_name?: string | null;
+  amount: number;
+  fee_merchant?: number;
+  fee_customer?: number;
+  total_fee?: number;
+  amount_received?: number;
+  checkout_url?: string;
+  status: TransactionStatus;
+  paid_at?: number | null;
+}
+
+export interface OpenPaymentPagination {
+  total?: number;
+  data_from?: number;
+  data_to?: number;
+  per_page?: number;
+  current_page?: number;
+  last_page?: number;
+  next_page?: number | null;
+}
+
+export interface OpenPaymentTransactionParams {
+  reference?: string;
+  merchantRef?: string;
+  /** "Y-m-d H:i:s", mis. "2026-11-01 00:00:00". */
+  startDate?: string;
+  /** "Y-m-d H:i:s". */
+  endDate?: string;
+  /** Maks 100, default 25. */
+  perPage?: number;
+  page?: number;
+}
+
+export interface OpenPaymentTransactionList {
+  data: OpenPaymentTransaction[];
+  pagination: OpenPaymentPagination;
+}
+
 export interface CallbackPayload {
   reference: string;
   merchant_ref: string | null;

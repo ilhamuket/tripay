@@ -42,6 +42,26 @@ await tripay.getPaymentInstruction({ code: 'BRIVA', payCode: tx.pay_code ?? unde
 
 `signature` transaksi dihitung otomatis. Input divalidasi sebelum request: `amount`, `price`, dan `quantity` harus bilangan bulat yang aman.
 
+## Open Payment (khusus production)
+
+Kode bayar / QRIS yang bisa dibayar berulang kali. Di mode sandbox SDK langsung melempar `TripayValidationError`, karena sandbox Tripay tidak menyediakan endpoint ini.
+
+```ts
+const tripay = new Tripay({ ...config, mode: 'production' });
+
+const op = await tripay.createOpenPayment({ method: 'QRIS', merchantRef: 'MEMBER-0042', customerName: 'Budi' });
+console.log(op.uuid, op.qr_string ?? op.pay_code);
+
+await tripay.getOpenPaymentDetail(op.uuid);
+const { data, pagination } = await tripay.getOpenPaymentTransactions(op.uuid, {
+  startDate: '2026-11-01 00:00:00', // "Y-m-d H:i:s"
+  endDate: '2026-11-30 23:59:59',
+  perPage: 50, // maks 100
+});
+```
+
+Pembayaran Open Payment dikirim ke callback dengan `is_closed_payment: 0`.
+
 ## Callback
 
 Verifikasi selalu memakai **raw body** asli. Hasil `JSON.stringify(req.body)` bisa berbeda byte-nya, sehingga signature tidak cocok.

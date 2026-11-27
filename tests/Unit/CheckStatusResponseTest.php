@@ -29,6 +29,18 @@ class CheckStatusResponseTest extends TestCase
         $this->assertFalse($res->isUnpaid());
     }
 
+    public function test_dibayar_is_paid(): void
+    {
+        // Pesan asli sandbox Tripay untuk transaksi lunas
+        foreach (['Status transaksi saat ini DIBAYAR', 'Status transaksi berhasil DIBAYAR'] as $message) {
+            $res = $this->response($message);
+            $this->assertTrue($res->isPaid(), $message);
+            $this->assertFalse($res->isUnpaid(), $message);
+        }
+
+        $this->assertFalse($this->response('Belum DIBAYARKAN')->isPaid());
+    }
+
     public function test_case_insensitive_and_expired(): void
     {
         $res = $this->response('Status transaksi saat ini expired');

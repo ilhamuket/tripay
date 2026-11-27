@@ -17,7 +17,8 @@ class CheckStatusResponse extends BaseResponse
      */
     public function isPaid(): bool
     {
-        return $this->statusIs('PAID');
+        // Tripay menulis status lunas sebagai "DIBAYAR" (mis. "Status transaksi saat ini DIBAYAR").
+        return $this->statusIs('PAID') || $this->statusIs('DIBAYAR');
     }
 
     /**

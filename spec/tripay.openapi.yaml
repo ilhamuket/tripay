@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Tripay Payment Gateway (Closed Payment)
-  version: 0.1.0
+  version: 0.1.1
   description: |
     Sumber kebenaran untuk SDK `ilhamuket/tripay` di semua bahasa.
     Disusun dari library PHP `ilhamuket/tripay` v1.x. Field yang belum pasti ditandai opsional.
@@ -145,7 +145,10 @@ paths:
       summary: Cek status transaksi (status ada di dalam `message`)
       description: |
         Status hanya muncul sebagai teks di `message`. SDK harus mencocokkan per kata
-        (`UNPAID` tidak boleh terbaca sebagai `PAID`).
+        (`UNPAID` tidak boleh terbaca sebagai `PAID`). Pesan yang terlihat di sandbox:
+        "Status transaksi saat ini UNPAID", "Status transaksi saat ini DIBAYAR" (= PAID),
+        "Status transaksi berhasil DIBAYAR" (= PAID). Untuk keputusan bisnis pakai
+        `transaction/detail` (`data.status`) atau callback.
       parameters:
         - $ref: '#/components/parameters/Reference'
       responses:
@@ -203,14 +206,14 @@ webhooks:
             schema: { $ref: '#/components/schemas/CallbackPayload' }
       responses:
         '200':
-          description: Balas `{"success": true}` setelah diproses.
+          description: 'Balas `{"success": true}` setelah diproses.'
 
 components:
   securitySchemes:
     bearerApiKey:
       type: http
       scheme: bearer
-      description: API key merchant (`Authorization: Bearer <api_key>`).
+      description: 'API key merchant (`Authorization: Bearer <api_key>`).'
 
   parameters:
     OptionalChannelCode:
@@ -254,7 +257,11 @@ components:
       type: object
       properties:
         flat: { type: number }
-        percent: { type: number }
+        percent:
+          description: Kadang dikirim sebagai string, mis. "0.00".
+          oneOf: [{ type: number }, { type: string }]
+        min: { type: number, nullable: true }
+        max: { type: number, nullable: true }
 
     PaymentChannel:
       type: object
@@ -278,7 +285,7 @@ components:
       properties:
         code: { $ref: '#/components/schemas/ChannelCode' }
         name: { type: string }
-        fee: { type: object, additionalProperties: true }
+        fee: { $ref: '#/components/schemas/Fee' }
         total_fee:
           type: object
           properties:
@@ -335,6 +342,9 @@ components:
         merchant_ref: { type: string }
         payment_method: { $ref: '#/components/schemas/ChannelCode' }
         payment_name: { type: string }
+        payment_selection_type: { type: string, example: static }
+        callback_url: { type: string, nullable: true }
+        return_url: { type: string, nullable: true }
         customer_name: { type: string }
         customer_email: { type: string }
         customer_phone: { type: string, nullable: true }
@@ -367,6 +377,8 @@ components:
         total_records: { type: integer }
         next_page: { type: integer, nullable: true }
         previous_page: { type: integer, nullable: true }
+        offset: { type: object, additionalProperties: { type: integer } }
+        sort: { type: string }
 
     CallbackPayload:
       type: object

@@ -20,7 +20,7 @@ import type {
 
 export const SANDBOX_URL = 'https://tripay.co.id/api-sandbox';
 export const PRODUCTION_URL = 'https://tripay.co.id/api';
-const USER_AGENT = 'ilhamuket-tripay-node/0.1.0';
+const USER_AGENT = 'ilhamuket-tripay-node/0.1.1';
 
 type Query = Record<string, string | number | undefined | null>;
 interface Envelope<T> {
@@ -42,10 +42,24 @@ function assertNonEmpty(value: unknown, field: string): asserts value is string 
   }
 }
 
-/** Ambil status dari pesan check-status per kata, jadi "UNPAID" tidak terbaca "PAID". */
+/** Kata di pesan check-status yang sudah terlihat di API Tripay. Lunas ditulis "DIBAYAR". */
+const STATUS_WORDS: Record<string, TransactionStatus> = {
+  UNPAID: 'UNPAID',
+  PAID: 'PAID',
+  DIBAYAR: 'PAID',
+  EXPIRED: 'EXPIRED',
+  FAILED: 'FAILED',
+  REFUND: 'REFUND',
+};
+
+/**
+ * Ambil status dari pesan check-status per kata, jadi "UNPAID" tidak terbaca "PAID".
+ * Contoh pesan asli: "Status transaksi saat ini UNPAID", "Status transaksi saat ini DIBAYAR".
+ * Kata lain menghasilkan `null`. Untuk keputusan bisnis, pakai `getTransactionDetail().status` atau callback.
+ */
 export function parseStatusMessage(message: string): TransactionStatus | null {
-  const match = message.toUpperCase().match(/\b(UNPAID|PAID|EXPIRED|FAILED|REFUND)\b/);
-  return (match?.[1] as TransactionStatus | undefined) ?? null;
+  const match = message.toUpperCase().match(/\b(UNPAID|PAID|DIBAYAR|EXPIRED|FAILED|REFUND)\b/);
+  return match ? STATUS_WORDS[match[1]] : null;
 }
 
 export class Tripay {

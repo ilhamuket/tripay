@@ -26,7 +26,10 @@ export interface TripayConfig {
 
 export interface Fee {
   flat?: number;
-  percent?: number;
+  /** Tripay kadang mengirim string, mis. "0.00". */
+  percent?: number | string;
+  min?: number | null;
+  max?: number | null;
 }
 
 export interface PaymentChannel {
@@ -48,7 +51,7 @@ export interface PaymentChannel {
 export interface FeeCalculation {
   code: ChannelCode;
   name?: string;
-  fee?: Record<string, unknown>;
+  fee?: Fee;
   total_fee?: { merchant?: number; customer?: number };
 }
 
@@ -90,6 +93,9 @@ export interface Transaction {
   merchant_ref?: string;
   payment_method?: ChannelCode;
   payment_name?: string;
+  payment_selection_type?: string;
+  callback_url?: string | null;
+  return_url?: string | null;
   customer_name?: string;
   customer_email?: string;
   customer_phone?: string | null;
@@ -117,6 +123,8 @@ export interface Pagination {
   total_records?: number;
   next_page?: number | null;
   previous_page?: number | null;
+  offset?: Record<string, number> | number;
+  sort?: string;
 }
 
 export interface TransactionListParams {
@@ -137,7 +145,10 @@ export interface TransactionList {
 export interface CheckStatusResult {
   /** Pesan asli Tripay, mis. "Status transaksi saat ini PAID". */
   message: string;
-  /** Status hasil parsing per kata; `null` bila tidak dikenali. */
+  /**
+   * Status hasil parsing per kata (DIBAYAR dibaca PAID); `null` bila tidak dikenali.
+   * Untuk keputusan bisnis, pakai `getTransactionDetail().status` atau callback.
+   */
   status: TransactionStatus | null;
 }
 

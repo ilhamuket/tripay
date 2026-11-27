@@ -155,6 +155,10 @@ test('getTransactions memetakan query dan pagination', async () => {
 test('checkTransactionStatus: UNPAID tidak terbaca PAID', async () => {
   assert.equal(parseStatusMessage('Status transaksi saat ini UNPAID'), 'UNPAID');
   assert.equal(parseStatusMessage('Status transaksi saat ini PAID'), 'PAID');
+  // Pesan asli sandbox Tripay untuk transaksi lunas
+  assert.equal(parseStatusMessage('Status transaksi saat ini DIBAYAR'), 'PAID');
+  assert.equal(parseStatusMessage('Status transaksi berhasil DIBAYAR'), 'PAID');
+  assert.equal(parseStatusMessage('Belum DIBAYARKAN'), null);
   assert.equal(parseStatusMessage('Status transaksi saat ini expired'), 'EXPIRED');
   assert.equal(parseStatusMessage('Tidak dikenal'), null);
 

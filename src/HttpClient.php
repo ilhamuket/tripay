@@ -82,7 +82,7 @@ class HttpClient
                 'headers'         => [
                     'Authorization' => 'Bearer ' . $this->apiKey,
                     'Accept'        => 'application/json',
-                    'User-Agent'    => 'ilhamuket/tripay-sdk/1.0.12',
+                    'User-Agent'    => 'ilhamuket/tripay-sdk/1.1.0',
                 ],
             ]);
 
